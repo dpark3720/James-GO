@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
+	"usegolang.com/models"
+
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -14,23 +15,18 @@ const (
 	dbname = "jamespark_test"
 )
 
-type User struct {
-	gorm.Model
-	Name  string
-	Email string `gorm:"not null;unique_index"`
-}
-
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
 		host, port, user, dbname)
-	db, err := gorm.Open("postgres", psqlInfo)
+	us, err := models.NewUserService(psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
-	if err := db.DB().Ping(); err != nil {
+	defer us.Close()
+	//us.DestructiveReset()
+	user, err := us.ByID(1)
+	if err != nil {
 		panic(err)
 	}
-
-	db.AutoMigrate(&User{})
+	fmt.Println(user)
 }
