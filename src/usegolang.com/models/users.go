@@ -28,6 +28,7 @@ type UserService struct {
 	db *gorm.DB
 }
 
+//DestructiveReset drops the user table and rebuilds it
 func (us *UserService) DestructiveReset() {
 	us.db.DropTableIfExists(&User{})
 	us.db.AutoMigrate(&User{})
@@ -53,6 +54,12 @@ func (us *UserService) ByID(id uint) (*User, error) {
 	default:
 		return nil, err
 	}
+}
+
+// Create will create the provided user and backfill database
+// like the ID, CreateAt, and UpdatedAt fields.
+func (us *UserService) Create(user *User) error {
+	return us.db.Create(user).Error
 }
 
 // Closes the UserService database Connection
